@@ -348,6 +348,187 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     }
 
     [Test]
+    public void CanUseListContainsWithVariableInQuery()
+    {
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var avalue = new[] { "jos" } ;
+        var result = context.Employees.Where(t => avalue.Contains(t.FirstName)).ToList();
+        Assert.That(result, Has.One.Items);
+        context.Database.EnsureDeleted();
+      }
+    }
+
+    [Test]
+    public void CanUseListContainsWithNoMatchInQuery()
+    {
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var avalue = new[] { "nonexistent" };
+        var result = context.Employees.Where(t => avalue.Contains(t.FirstName)).ToList();
+        Assert.That(result, Is.Empty);
+        context.Database.EnsureDeleted();
+      }
+    }
+
+    [Test]
+    public void CanUseListContainsWithMultipleValuesInQuery()
+    {
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var avalue = new[] { "Jos", "Alice", "Bob" };
+        var result = context.Employees.Where(t => avalue.Contains(t.FirstName)).ToList();
+        Assert.That(result, Has.One.Items);
+        context.Database.EnsureDeleted();
+      }
+    }
+
+    [Test]
+    public void CanUseListContainsWithMultipleMatchesInQuery()
+    {
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        context.Employees.AddRange(
+          new Employee { FirstName = "Alice", LastName = "Smith" },
+          new Employee { FirstName = "Bob", LastName = "Jones" },
+          new Employee { FirstName = "Charlie", LastName = "Brown" }
+        );
+        context.SaveChanges();
+        var avalue = new[] { "Alice", "Bob" };
+        var result = context.Employees.Where(t => avalue.Contains(t.FirstName)).ToList();
+        Assert.That(result, Has.Count.EqualTo(2));
+        context.Database.EnsureDeleted();
+      }
+    }
+
+    [Test]
+    public void CanUseListContainsWithEmptyArrayInQuery()
+    {
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        context.SaveChanges();
+        var avalue = Array.Empty<string>();
+        var result = context.Employees.Where(t => avalue.Contains(t.FirstName)).ToList();
+        Assert.That(result, Is.Empty);
+        context.Database.EnsureDeleted();
+      }
+    }
+
+    [Test]
+    public async Task CanUseListContainsWithVariableInQueryAsync()
+    {
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
+        context.Employees.Add(e);
+        await context.SaveChangesAsync();
+        var avalue = new[] { "Jos" };
+        var result = await context.Employees.Where(t => avalue.Contains(t.FirstName)).ToListAsync();
+        Assert.That(result, Has.One.Items);
+        context.Database.EnsureDeleted();
+      }
+    }
+
+    [Test]
+    public void CanUseListContainsOnLastNameInQuery()
+    {
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ComputedColumnContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        context.Employees.AddRange(
+          new Employee { FirstName = "Alice", LastName = "Smith" },
+          new Employee { FirstName = "Bob", LastName = "Jones" }
+        );
+        context.SaveChanges();
+        var lastNames = new[] { "Smith" };
+        var result = context.Employees.Where(t => lastNames.Contains(t.LastName)).ToList();
+        Assert.That(result, Has.One.Items);
+        Assert.That(result[0].FirstName, Is.EqualTo("Alice"));
+        context.Database.EnsureDeleted();
+      }
+    }
+
+    [Test]
     public void TableAttributeTest()
     {
       using (WorldContext context = new WorldContext())

@@ -319,6 +319,10 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         {
           return _clrTypeMappings.FirstOrDefault(t => t.Value.GetType() == typeof(MySQLGuidTypeMapping)).Value;
         }
+        else if (clrType == typeof(string[]))
+        {
+          return _longtextUnicode;
+        }
       }
 
       return null;
